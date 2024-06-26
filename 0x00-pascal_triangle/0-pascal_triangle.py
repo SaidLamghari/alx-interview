@@ -24,14 +24,14 @@ def pascal_triangle(n):
     if n <= 0:
         return []
 
-    triangle = [[1]]  # Initialise le triangle avec la première ligne
+    trngle = [[1]]  # Initialise le triangle avec la première ligne
 
     for i in range(1, n):
-        row = [1]  # Chaque ligne commence et termine par 1
+        rw = [1]  # Chaque ligne commence et termine par 1
         for j in range(1, i):
             # Calcule les valeurs intérieures de la ligne
-            row.append(triangle[i-1][j-1] + triangle[i-1][j])
-        row.append(1)  # Termine la ligne avec 1
-        triangle.append(row)  # Ajoute la ligne au triangle
+            rw.append(trngle[i-1][j-1] + trngle[i-1][j])
+        rw.append(1)  # Termine la ligne avec 1
+        trngle.append(rw)  # Ajoute la ligne au triangle
 
-    return triangle
+    return trngle
