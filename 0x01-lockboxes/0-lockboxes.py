@@ -1,4 +1,7 @@
 #!/usr/bin/python3
+"""
+Auteur SAID LAMGHARI
+"""
 
 
 def canUnlockAll(boxes):
