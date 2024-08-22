@@ -52,33 +52,23 @@ def makeChange(coins, total):
     - La complexité en espace est O(m),
     pour stocker la liste `vdb`.
     """
-
-    # Cas particulier : si le montant est 0 ou inférieur
+    # Cas de base : si le total est 0 ou négatif,
+    # aucun jeton n'est nécessaire
     if total <= 0:
         return 0
 
-    # Initialisation de la liste vdb avec
-    # une valeur infinie, sauf vdb[0] = 0
-    # vdb[i] représente le nombre minimum de
-    # pièces nécessaires pour obtenir le montant i
-    vdb = [float('inf')] * (total + 1)
-    vdb[0] = 0
-    # 0 pièces sont nécessaires pour obtenir le montant 0
+    # Initialiser une liste pour stocker le nombre
+    # minimum de pièces nécessaires pour chaque montant
+    dp = [float('inf')] * (total + 1)
+    dp[0] = 0
+    # Zéro pièce nécessaire pour obtenir un total de 0
 
-    # Traitement de chaque pièce
+    # Itérer à travers chaque pièce et mettre à jour le tableau dp
     for coin in coins:
-        # On parcourt les montants à partir de la
-        # valeur de la pièce jusqu'au montant total
-        for amount in range(coin, total + 1):
-            # Si le montant (amount - coin) peut
-            # être atteint, alors il est possible de
-            # former le montant 'amount' en ajoutant la pièce actuelle
-            if vdb[amount - coin] != float('inf'):
-                # Met à jour le nombre minimum
-                # de pièces pour le montant 'amount'
-                vdb[amount] = min(vdb[amount], vdb[amount - coin] + 1)
+        for x in range(coin, total + 1):
+            # Mettre à jour le nombre minimum de pièces
+            # nécessaires pour obtenir le montant x
+            dp[x] = min(dp[x], dp[x - coin] + 1)
 
-    # Si vdb[total] est encore infini, cela
-    # signifie que le montant total ne peut pas être
-    # atteint avec les pièces disponibles
-    return vdb[total] if vdb[total] != float('inf') else -1
+    # Si le total ne peut pas être atteint, retourner -1
+    return dp[total] if dp[total] != float('inf') else -1
