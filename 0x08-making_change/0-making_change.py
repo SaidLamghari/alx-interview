@@ -7,6 +7,7 @@ utilisant un ensemble de pièces de différentes valeurs.
 Auteur SAID LAMGHARI
 """
 
+
 def makeChange(coins, total):
     """
     Détermine le nombre minimum de pièces nécessaires
@@ -42,7 +43,7 @@ def makeChange(coins, total):
 
     # Trie les pièces par ordre décroissant
     sortdCoins = sorted(coins, reverse=True)
-    
+
     # Initialisation des variables
     rst = total  # Montant restant à obtenir
     coinsCount = 0  # Compteur pour le nombre de pièces utilisées
