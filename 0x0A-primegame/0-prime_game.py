@@ -5,95 +5,71 @@ Auteur : SAID LAMGHARI
 """
 
 
-def funct_sieve(max_val):
+def sieve_of_eratosthenes(max_n):
     """
-    Génère une liste de nombres premiers jusqu'à max_val en utilisant
-    l'algorithme du Crible d'Ératosthène.
+    Génère une liste de nombres premiers jusqu'à max_n en utilisant le Crible d'Ératosthène.
 
-    :param max_val: Valeur maximale
-    jusqu'à laquelle les nombres premiers
-    doivent être générés.
-    :return: Liste de nombres premiers jusqu'à max_val.
+    :param max_n: Limite supérieure pour la génération des nombres premiers.
+    :return: Liste des nombres premiers jusqu'à max_n.
     """
-    # Liste pour marquer les nombres premiers (initialement, tous les
-    # nombres sont supposés premiers)
-    valprime = [True] * (max_val + 1)
+    is_prime = [True] * (max_n + 1)  # Liste de booléens pour marquer les nombres premiers
     p = 2
-
-    while p * p <= max_val:
-        if valprime[p]:
-            # Marque tous les multiples de p comme non premiers
-            for i in range(p * p, max_val + 1, p):
-                valprime[i] = False
+    while (p * p <= max_n):
+        if is_prime[p]:
+            # Marque les multiples de p comme non premiers
+            for i in range(p * p, max_n + 1, p):
+                is_prime[i] = False
         p += 1
-
     # Retourne la liste des nombres premiers
-    return [p for p in range(2, max_val + 1) if valprime[p]]
+    return [p for p in range(2, max_n + 1) if is_prime[p]]
 
-
-def is_winner(x, nums):
+def calculate_grundy(n, primes):
     """
-    Détermine le gagnant du jeu
-    des nombres premiers après x tours.
+    Calcule le nombre de Grundy pour un nombre donné n en utilisant la liste des nombres premiers.
 
-    :param x: Nombre de tours de jeu.
-    :param nums: Liste des valeurs de n pour chaque tour de jeu.
-    :return: Nom du joueur ayant gagné
-    le plus de tours ("Maria" ou "Ben"),
-    ou None si les deux joueurs ont
-    gagné un nombre égal de tours.
+    :param n: Le nombre pour lequel le nombre de Grundy est calculé.
+    :param primes: Liste des nombres premiers jusqu'à n.
+    :return: Nombre de Grundy pour n.
     """
-    from bisect import bisect_right
+    grundy = [0] * (n + 1)  # Liste des nombres de Grundy pour chaque nombre jusqu'à n
+    for i in range(1, n + 1):
+        reachable = set()  # Ensemble des nombres de Grundy accessibles à partir de i
+        for prime in primes:
+            if prime > i:
+                break
+            reachable.add(grundy[i - prime])
+        # Trouve le plus petit nombre de Grundy non présent dans l'ensemble reachable
+        while grundy[i] in reachable:
+            grundy[i] += 1
+    return grundy[n]
 
-    # Trouve la valeur maximale de n pour optimiser la génération des
-    # nombres premiers
-    val_maxn = max(nums)
-    # Génère tous les nombres premiers jusqu'à la valeur maximale de n
-    primes = funct_sieve(val_maxn)
+def isWinner(x, nums):
+    """
+    Détermine le gagnant du jeu des nombres premiers après x tours.
 
-    def playgame(n):
-        """
-        Simule un tour de jeu pour une valeur donnée de n et détermine le
-        gagnant du tour.
+    :param x: Nombre de tours.
+    :param nums: Liste des valeurs de n pour chaque tour.
+    :return: Nom du joueur ayant gagné le plus de tours ("Maria" ou "Ben"), ou None en cas d'égalité.
+    """
+    if x < 1 or not nums:
+        return None  # Aucun tour ou liste vide
 
-        :param n: Valeur de n pour le tour de jeu.
-        :return: Nom du gagnant du tour de jeu ("Maria" ou "Ben").
-        """
-        if n < 2:
-            # Si n < 2, il n'y a pas de nombres premiers disponibles,
-            # donc Ben gagne par défaut
-            return "Ben"
+    max_n = max(nums)  # Trouve la valeur maximale dans nums pour optimiser la génération des nombres premiers
+    primes = sieve_of_eratosthenes(max_n)  # Génère tous les nombres premiers jusqu'à max_n
 
-        # Ensemble des nombres premiers jusqu'à n
-        prime_set = set(primes[:bisect_right(primes, n)])
-        # 0 pour Maria, 1 pour Ben (Maria commence en premier)
-        turn = 0
+    maria_wins = 0  # Compteur des victoires de Maria
+    ben_wins = 0    # Compteur des victoires de Ben
 
-        while prime_set:
-            # Choisit le plus petit nombre premier disponible
-            prime = min(prime_set)
-            # Retire le nombre premier choisi de l'ensemble
-            prime_set.remove(prime)
-            # Retire tous les multiples du nombre premier choisi
-            multiples = set(range(prime, n + 1, prime))
-            prime_set.difference_update(multiples)
-            # Change de tour
-            turn = 1 - turn
+    for n in nums:
+        grundy_number = calculate_grundy(n, primes)  # Calcule le nombre de Grundy pour n
+        # Le joueur Maria gagne si le nombre de Grundy est impair, sinon Ben gagne
+        if grundy_number % 2 == 1:
+            maria_wins += 1
+        else:
+            ben_wins += 1
 
-        # Le gagnant est celui dont c'était
-        # le tour de jouer au dernier mouvement
-        return "Maria" if turn == 1 else "Ben"
+    # Détermine le gagnant global basé sur le nombre de victoires
+    if maria_wins == ben_wins:
+        return None  # Égalité
+    return "Maria" if maria_wins > ben_wins else "Ben"
 
-    # Compte le nombre de victoires pour Maria et Ben
-    vmaria_wins = sum(playgame(num) == "Maria" for num in nums)
-    vben_wins = x - vmaria_wins
-
-    # Détermine le gagnant global
-    # basé sur le nombre de victoires
-    if vmaria_wins > vben_wins:
-        return "Maria"
-    elif vben_wins > vmaria_wins:
-        return "Ben"
-    else:
-        # Retourne None en cas d'égalité
-        return None
