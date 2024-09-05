@@ -4,84 +4,102 @@ auteur SAID LAMGHARI
 """
 
 
-def sieve_of_eratosthenes(max_num):
+def valsieve(max_num):
     """Génère une liste de nombres premiers jusqu'à
-    max_num en utilisant le Crible d'Ératosthène."""
-    # Crée une liste de booléens initialisée à True.
-    # Chaque index représente un nombre de 0 à max_num,
-    # initialement considéré comme premier.
+    max_num en utilisant le Crible d'Ératosthène.
+
+    Args:
+        max_num (int): La valeur maximale jusqu'à
+        laquelle générer les nombres premiers.
+
+    Returns:
+        List[int]: Une liste contenant tous
+        les nombres premiers jusqu'à max_num.
+    """
+    # Si max_num est inférieur à 2, il n'y
+    # a pas de nombres premiers possibles
+    if max_num < 2:
+        return []
+
+    # Crée une liste de booléens, où True signifie que
+    # le nombre à cet index est considéré comme premier
     primes = [True] * (max_num + 1)
+    primes[0] = primes[1] = False  # 0 et 1 ne sont pas des nombres premiers
 
-    # Les nombres 0 et 1 ne sont pas premiers
-    primes[0] = primes[1] = False
-
-    # Démarre à partir du premier nombre premier, qui est 2
+    # Application du Crible d'Ératosthène
     p = 2
-    # Continue tant que le carré de
-    # p est inférieur ou égal à max_num
     while p * p <= max_num:
-        # Si p est encore marqué comme premier
         if primes[p]:
-            # Commence à marquer les multiples de p
-            # comme non premiers, à partir de p*p
-            multiple = p * p
-            while multiple <= max_num:
+            # Marque les multiples de p comme
+            # non premiers, à partir de p*p
+            for multiple in range(p * p, max_num + 1, p):
                 primes[multiple] = False
-                multiple += p
-        # Passe au nombre suivant
         p += 1
-    return primes
+
+    # Retourne la liste des nombres premiers
+    return [i for i, is_prime in enumerate(primes) if is_prime]
 
 
 def isWinner(x, nums):
-    """Détermine le gagnant d'une session de
-    jeu des nombres premiers avec `x` tours."""
-    # Vérifie si le nombre de tours est valide et
-    # si la liste des nombres n'est pas vide
-    if x < 1 or not nums:
+    """Détermine le gagnant de chaque partie du jeu des nombres
+    premiers et retourne le joueur qui a gagné le plus de parties.
+
+    Args:
+        x (int): Le nombre de parties.
+        nums (List[int]): Liste des valeurs n pour chaque partie.
+
+    Returns:
+        str ou None: Le nom du joueur qui a gagné le plus de
+        parties ('Maria' ou 'Ben'), ou None en cas d'égalité.
+    """
+    # Vérifie si le nombre de parties est valide
+    # et que la liste des nombres n'est pas vide
+    if x <= 0 or not nums:
         return None
 
-    # Trouve la valeur maximale dans la liste nums pour
-    # déterminer jusqu'où générer les nombres premiers
-    max_value = max(nums)
-    # Génére une liste des nombres
-    # premiers jusqu'à max_value
-    primes = sieve_of_eratosthenes(max_value)
+    # Trouve la valeur maximale de n pour déterminer
+    # jusqu'où générer les nombres premiers
+    max_n = max(nums)
 
-    # Initialise les compteurs
-    # de victoires pour Maria et Ben
-    mariaswns = benswns = 0
-    # Compteur pour itérer sur les tours
-    count = 0
+    # Génére la liste des nombres premiers jusqu'à max_n
+    primes_list = valsieve(max_n)
 
-    # Tant que nous avons des tours à traiter
-    while count < x:
-        # Obtient le nombre maximal pour le tour actuel
-        n = nums[count]
-        # Compte combien de nombres jusqu'à n sont premiers
-        prime_count = sum(primes[:n])
-        # Détermine le gagnant du tour basé sur
-        # la parité du nombre de nombres premiers
-        if prime_count % 2 == 0:
-            # Si le nombre de nombres premiers
-            # est pair, Ben gagne ce tour
-            benswns += 1
+    # Convertit la liste des nombres premiers en
+    # un ensemble pour des vérifications plus rapides
+    prime_set = set(primes_list)
+
+    # Initialise les compteurs de victoires pour Maria et Ben
+    mariawns = 0
+    benwns = 0
+
+    # Parcourt chaque valeur n dans la liste nums pour chaque partie
+    for n in nums:
+        # Si n est inférieur à 2, il n'y a pas de nombres
+        # premiers à choisir, donc Ben gagne automatiquement
+        if n < 2:
+            benwns += 1
+            continue
+
+        # Trouve tous les nombres premiers jusqu'à n
+        primes_in_round = [p for p in primes_list if p <= n]
+
+        # Détermine le gagnant basé sur le nombre
+        # de nombres premiers disponibles
+        if len(primes_in_round) % 2 == 1:
+            # Si le nombre de nombres premiers est
+            # impair, Maria gagne car elle joue en premier
+            mariawns += 1
         else:
-            # Si le nombre de nombres premiers
-            # est impair, Maria gagne ce tour
-            mariaswns += 1
-        # Passe au tour suivant
-        count += 1
+            # Si le nombre de nombres
+            # premiers est pair, Ben gagne
+            benwns += 1
 
-    # Utilise un dictionnaire pour
-    # comparer les victoires de Maria et Ben
-    winners = {'Maria': mariaswns, 'Ben': benswns}
-
-    # Si le nombre de victoires
-    # est égal, il n'y a pas de gagnant
-    if mariaswns == benswns:
+    # Compare le nombre de victoires pour Maria et Ben
+    if mariawns > benwns:
+        return "Maria"
+    elif benwns > mariawns:
+        return "Ben"
+    else:
+        # En cas d'égalité, il n'y a pas de
+        # gagnant clairement déterminé
         return None
-
-    # Retourne le nom du
-    # joueur avec le plus de victoires
-    return max(winners, key=winners.get)
