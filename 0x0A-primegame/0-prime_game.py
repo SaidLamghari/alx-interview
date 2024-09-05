@@ -3,17 +3,18 @@
 auteur SAID LAMGHARI
 """
 
+
 def sieve_of_eratosthenes(max_num):
     """Génère une liste de nombres premiers jusqu'à
     max_num en utilisant le Crible d'Ératosthène."""
-    # Crée une liste de booléens initialisée à True. 
+    # Crée une liste de booléens initialisée à True.
     # Chaque index représente un nombre de 0 à max_num,
     # initialement considéré comme premier.
     primes = [True] * (max_num + 1)
-    
+
     # Les nombres 0 et 1 ne sont pas premiers
     primes[0] = primes[1] = False
-    
+
     # Démarre à partir du premier nombre premier, qui est 2
     p = 2
     # Continue tant que le carré de
@@ -31,6 +32,7 @@ def sieve_of_eratosthenes(max_num):
         p += 1
     return primes
 
+
 def isWinner(x, nums):
     """Détermine le gagnant d'une session de
     jeu des nombres premiers avec `x` tours."""
@@ -45,13 +47,13 @@ def isWinner(x, nums):
     # Génére une liste des nombres
     # premiers jusqu'à max_value
     primes = sieve_of_eratosthenes(max_value)
-    
+
     # Initialise les compteurs
     # de victoires pour Maria et Ben
     mariaswns = benswns = 0
     # Compteur pour itérer sur les tours
     count = 0
-    
+
     # Tant que nous avons des tours à traiter
     while count < x:
         # Obtient le nombre maximal pour le tour actuel
@@ -74,12 +76,12 @@ def isWinner(x, nums):
     # Utilise un dictionnaire pour
     # comparer les victoires de Maria et Ben
     winners = {'Maria': mariaswns, 'Ben': benswns}
-    
+
     # Si le nombre de victoires
     # est égal, il n'y a pas de gagnant
     if mariaswns == benswns:
         return None
-    
+
     # Retourne le nom du
     # joueur avec le plus de victoires
     return max(winners, key=winners.get)
